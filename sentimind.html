@@ -1,0 +1,55 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sentimind App</title>
+</head>
+<body>
+  <h1>Sentimind Private Dialogue</h1>
+
+  <form id="dialogueForm">
+    <label for="userInput">Enter your thoughts:</label><br>
+    <textarea id="userInput" name="userInput" rows="6" cols="50" required></textarea><br>
+    <button type="submit">Send</button>
+  </form>
+
+  <div id="responseSection" style="margin-top:20px;">
+    <h3>Responses:</h3>
+    <div id="responses"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById('dialogueForm');
+    const userInput = document.getElementById('userInput');
+    const responsesDiv = document.getElementById('responses');
+
+    form.addEventListener('submit', async function(event) {
+      event.preventDefault();
+
+      const userText = userInput.value.trim();
+      if (!userText) return;
+
+      // Send to server
+      try {
+        const res = await fetch('/api/dialogue', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userInput: userText })
+        });
+
+        const data = await res.json();
+        const entry = document.createElement('div');
+        entry.innerHTML = '<p><strong>You:</strong> ' + userText + '</p>' +
+                          '<p><strong>Sentimind:</strong> ' + data.response + '</p>';
+        responsesDiv.appendChild(entry);
+      } catch (err) {
+        console.error('Error:', err);
+      }
+
+      userInput.value = '';
+    });
+  </script>
+</body>
+</html>
